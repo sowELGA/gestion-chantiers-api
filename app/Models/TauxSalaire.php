@@ -2,10 +2,13 @@
 
 namespace App\Models;
 
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
 class TauxSalaire extends Model
 {
+    use HasFactory;
+
     protected $table = 'taux_salaires';
     protected $fillable = ['taux_journalier', 'taux_heure_sup', 'poste_id', 'chantier_id'];
 

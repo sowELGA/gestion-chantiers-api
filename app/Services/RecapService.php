@@ -38,35 +38,31 @@ class RecapService
         return ['statut' => $recaps->first()?->statutRecap ?? 'en_attente', 'motif_rejet' => $recaps->first()?->motif_rejet];
     }
 
-    public function getLignesRecap(int $chantierId, int $semaine, int $annee, int $page, int $parPage = 10): array
+    public function getRecapComplet(int $chantierId, int $semaine, int $annee, int $page, int $parPage = 15): array
     {
         $tousPersonnel = PointageHelper::personnelActif($chantierId);
+        $jours = SemaineHelper::jours($semaine, $annee);
+        $pointages = PointageHelper::pointagesSemaine($chantierId, $semaine, $annee);
+
+        // Toutes les lignes (pour les totaux), une seule fois
+        $toutesLignes = $tousPersonnel->map(fn($o) => PointageHelper::construireLigneOuvrier($o, $jours, $pointages, $chantierId, $semaine, $annee));
+
         $total = $tousPersonnel->count();
         $pg = PointageHelper::paginer($total, $page, $parPage);
-        $jours = SemaineHelper::jours($semaine, $annee);
-        $pointages = PointageHelper::pointagesSemaine($chantierId, $semaine, $annee);
 
-        $lignes = $tousPersonnel->forPage($pg['page'], $parPage)->values()
-            ->map(fn($o) => PointageHelper::construireLigneOuvrier($o, $jours, $pointages, $chantierId, $semaine, $annee));
-
-        return ['lignes' => $lignes, 'pagination' => $pg];
-    }
-
-    public function getTotauxSemaine(int $chantierId, int $semaine, int $annee): array
-    {
-        $tousPersonnel = PointageHelper::personnelActif($chantierId);
-        $jours = SemaineHelper::jours($semaine, $annee);
-        $pointages = PointageHelper::pointagesSemaine($chantierId, $semaine, $annee);
-
-        $toutesLignes = $tousPersonnel->map(fn($o) => PointageHelper::construireLigneOuvrier($o, $jours, $pointages, $chantierId, $semaine, $annee));
+        // Sous-ensemble paginé, réutilisé depuis les lignes déjà calculées (pas de recalcul)
+        $lignesPage = $toutesLignes->forPage($pg['page'], $parPage)->values();
 
         $totauxParJour = collect($jours)->map(fn($jour, $i) => $toutesLignes->sum(fn($l) => $l['jours'][$i]['statut'] === 'present' ? 1 : 0));
 
         return [
-            'total_presents' => $toutesLignes->sum('jours_present'),
-            'total_h_sup' => $toutesLignes->sum('total_h_sup'),
-            'total_salaires' => $toutesLignes->sum('salaire_total'),
-            'totaux_par_jour' => $totauxParJour,
+            'lignes' => $lignesPage,
+            'pagination' => $pg,
+            'totaux' => [
+                'total_presents' => $toutesLignes->sum('jours_present'),
+                'total_h_sup' => $toutesLignes->sum('total_h_sup'),
+                'totaux_par_jour' => $totauxParJour,
+            ],
         ];
     }
 

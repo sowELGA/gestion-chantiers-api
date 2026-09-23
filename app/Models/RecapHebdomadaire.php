@@ -2,10 +2,13 @@
 
 namespace App\Models;
 
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
 class RecapHebdomadaire extends Model
 {
+    use HasFactory;
+
     protected $table = 'recaps_hebdomadaires';
     protected $fillable = ['semaine', 'annee', 'statutRecap', 'motif_rejet', 'valide_le', 'ouvrier_id', 'chantier_id', 'soumis_par_id', 'valide_par_id'];
 

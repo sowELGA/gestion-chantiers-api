@@ -21,7 +21,7 @@ class ChantierController extends Controller
     {
         $statutFiltre = $request->input('statut', 'en_cours'); // 'en_cours' par défaut
 
-        $query = Chantier::with(['chefProjet', 'pointeur']);
+        $query = Chantier::with(['chefProjet', 'pointeur', 'depenses', 'taches']);
 
         if ($statutFiltre !== 'toutes') {
             $query->where('statut', $statutFiltre);
@@ -66,7 +66,7 @@ class ChantierController extends Controller
 
     public function show(Chantier $chantier)
     {
-        $chantier->load(['phases.taches', 'chefProjet', 'pointeur', 'historiqueChefsProjets.user', 'historiquePointeurs.user']);
+        $chantier->load(['phases.taches', 'chefProjet', 'pointeur', 'historiqueChefsProjets.user', 'historiquePointeurs.user', 'depenses']);
 
         $chefsProjets = User::avecRole('chef_projet')->where('actif', true)->orderBy('nomUser')->get(['id', 'nomUser', 'prenomUser']);
         $pointeurs = User::avecRole('pointeur')->where('actif', true)->doesntHave('chantiersPointes')->orderBy('nomUser')->get(['id', 'nomUser', 'prenomUser']);

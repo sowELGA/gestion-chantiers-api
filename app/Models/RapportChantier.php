@@ -2,10 +2,13 @@
 
 namespace App\Models;
 
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
 class RapportChantier extends Model
 {
+    use HasFactory;
+
     protected $table = 'rapports_chantiers';
     protected $fillable = ['date_rapport', 'titre', 'type', 'contenu', 'chantier_id', 'auteur_id'];
 

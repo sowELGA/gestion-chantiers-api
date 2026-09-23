@@ -2,10 +2,13 @@
 
 namespace App\Models;
 
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
 class Pointage extends Model
 {
+    use HasFactory;
+
     protected $table = 'pointages';
     protected $fillable = ['date', 'statutPointage', 'heures_sup', 'ouvrier_id', 'chantier_id', 'poste_id', 'taux_journalier', 'taux_heure_sup'];
 

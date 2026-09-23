@@ -41,7 +41,7 @@ class ApprovisionnementController extends Controller
         $dateDebut = $filtres['date_debut'] ?? now()->startOfMonth()->toDateString();
         $dateFin   = $filtres['date_fin'] ?? now()->toDateString();
 
-        $demandes = Approvisionnement::with(['chantier', 'demandeur'])
+        $demandes = Approvisionnement::with(['chantier', 'demandeur', 'bonReceptions'])
             ->whereIn('statutAppro', ['cloturee', 'rejetee'])
             ->whereBetween('updated_at', [$dateDebut . ' 00:00:00', $dateFin . ' 23:59:59'])
             ->orderByDesc('updated_at')

@@ -2,10 +2,13 @@
 
 namespace App\Models;
 
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
 class UserChantier extends Model
 {
+    use HasFactory;
+    
     protected $table = 'user_chantier';
 
     protected $fillable = ['debut_affectation', 'fin_affectation', 'user_id', 'chantier_id'];

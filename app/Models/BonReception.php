@@ -2,10 +2,13 @@
 
 namespace App\Models;
 
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
 class BonReception extends Model
 {
+    use HasFactory;
+    
     protected $table = 'bon_receptions';
     protected $fillable = ['quantite_recue', 'date_reception', 'observation', 'demande_id', 'chantier_id', 'receptionnee_par_id'];
 

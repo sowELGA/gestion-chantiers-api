@@ -2,10 +2,13 @@
 
 namespace App\Models;
 
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
 class DepensesChantier extends Model
 {
+    use HasFactory;
+
     protected $table = 'depenses_chantiers';
 
     protected $fillable = ['categorie', 'montant', 'description', 'date_depense', 'chantier_id'];
