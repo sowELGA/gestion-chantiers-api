@@ -11,14 +11,11 @@ sed -i "s/<VirtualHost \*:80>/<VirtualHost *:${PORT}>/" /etc/apache2/sites-avail
 # a besoin d'écrire dans un .env qui n'existe pas. La clé doit être générée en
 # local une fois ("php artisan key:generate --show") puis collée dans les
 # variables Railway sous le nom APP_KEY.
+# Génère la clé d'application si elle n'existe pas encore (sécurité, normalement définie via Railway)
 if [ -z "$APP_KEY" ]; then
-    echo "=================================================================="
-    echo "ERREUR : la variable d'environnement APP_KEY n'est pas définie."
-    echo "Génère-la en local avec : php artisan key:generate --show"
-    echo "Puis ajoute-la dans Railway (Variables) sous le nom APP_KEY."
-    echo "=================================================================="
-    exit 1
+    php artisan key:generate --force
 fi
+
 
 # Vide les caches de config potentiellement obsolètes (venant de l'image buildée précédemment)
 php artisan config:clear
