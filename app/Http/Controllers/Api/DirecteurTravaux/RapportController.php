@@ -47,7 +47,7 @@ class RapportController extends Controller
             $query->where(fn($q) => $q->where('titre', 'like', "%{$r}%")->orWhere('contenu', 'like', "%{$r}%"));
         }
 
-        $rapports = $query->paginate(12)->withQueryString();
+        $rapports = $query->paginate(8)->withQueryString();
 
         $stats = [
             'total'     => RapportChantier::count(),

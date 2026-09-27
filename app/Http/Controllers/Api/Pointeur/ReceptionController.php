@@ -72,7 +72,8 @@ class ReceptionController extends Controller
 
         $bons = BonReception::with(['demande', 'receptionneePar'])
             ->where('chantier_id', $chantier->id)
-            ->whereBetween('date_reception', [$dateDebut, $dateFin])
+            ->whereDate('date_reception', '>=', $dateDebut)
+            ->whereDate('date_reception', '<=', $dateFin)
             ->orderByDesc('date_reception')
             ->get();
 

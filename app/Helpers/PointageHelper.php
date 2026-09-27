@@ -46,7 +46,8 @@ class PointageHelper
 
         return Pointage::with('poste')
             ->where('chantier_id', $chantierId)
-            ->whereBetween('date', [$samedi->toDateString(), $vendredi->toDateString()])
+            ->whereDate('date', '>=', $samedi->toDateString())
+            ->whereDate('date', '<=', $vendredi->toDateString())
             ->get()
             ->groupBy('ouvrier_id');
     }

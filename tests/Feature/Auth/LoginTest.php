@@ -8,7 +8,13 @@ class LoginTest extends TestCase
 {
     public function test_un_utilisateur_peut_se_connecter_avec_de_bons_identifiants(): void
     {
-        $user = $this->creerUserAvecRole('admin', ['email' => 'admin@test.com', 'password' => bcrypt('motdepasse123')]);
+        $user = $this->creerUserAvecRole(
+            'admin',
+            [
+                'email' => 'admin@test.com',
+                'password' => bcrypt('motdepasse123')
+            ]
+        );
 
         $response = $this->postJson('/api/login', [
             'email' => 'admin@test.com',

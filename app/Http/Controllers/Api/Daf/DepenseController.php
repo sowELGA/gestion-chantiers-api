@@ -45,7 +45,8 @@ class DepenseController extends Controller
         $dateFin   = $filtres['date_fin'] ?? now()->toDateString();
 
         $depenses = DepensesChantier::where('chantier_id', $chantier->id)
-            ->whereBetween('date_depense', [$dateDebut, $dateFin])
+            ->whereDate('date_depense', '>=', $dateDebut)
+            ->whereDate('date_depense', '<=', $dateFin)
             ->orderByDesc('date_depense')
             ->get();
 

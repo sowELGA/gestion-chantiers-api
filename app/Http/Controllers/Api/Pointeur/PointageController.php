@@ -104,7 +104,7 @@ class PointageController extends Controller
             'statut' => $statut['statut'],
             'motif_rejet' => $statut['motif_rejet'],
             'totaux' => [
-                'totaux_par_jour' => $recap['totaux_par_jour'],
+                'totaux_par_jour' => $recap['totaux']['totaux_par_jour'],
             ],
             'modifiable' => $modifiable,
             'soumettable' => $soumettable,

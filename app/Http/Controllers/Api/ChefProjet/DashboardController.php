@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Api\ChefProjet;
 
+use App\Helpers\SemaineHelper;
 use App\Http\Controllers\Controller;
 use App\Models\Approvisionnement;
 use App\Models\Chantier;
@@ -20,8 +21,9 @@ class DashboardController extends Controller
             ->whereIn('statut', ['en_cours', 'en_attente', 'suspendu'])
             ->get();
 
-        $semaine = Carbon::today()->isoWeek();
-        $annee = Carbon::today()->year;
+        $today = Carbon::today();
+        $semaine = SemaineHelper::numeroCycle($today);
+        $annee = SemaineHelper::anneeCycle($today);
 
         $kpi = [
             'mes_chantiers' => $mesChantiers->count(),
@@ -30,8 +32,7 @@ class DashboardController extends Controller
             'taches_en_retard' => Tache::whereHas('chantier', fn($q) => $q->where('chef_projet_id', $userId))
                 ->where('statutTache', '!=', 'terminee')->where('date_fin_prevue', '<', now())->count(),
             'fiches_a_valider' => RecapHebdomadaire::whereHas('chantier', fn($q) => $q->where('chef_projet_id', $userId))
-                ->where('statutRecap', 'soumise')->where('semaine', $semaine)->where('annee', $annee)
-                ->distinct('chantier_id')->count('chantier_id'),
+                ->where('statutRecap', 'soumise')->where('semaine', $semaine)->where('annee', $annee)->distinct('chantier_id')->count('chantier_id'),
             'demandes_attente' => Approvisionnement::whereHas('chantier', fn($q) => $q->where('chef_projet_id', $userId))
                 ->where('statutAppro', 'en_attente')->count(),
         ];

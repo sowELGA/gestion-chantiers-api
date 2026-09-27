@@ -44,7 +44,12 @@ class SalairesWorkflowTest extends TestCase
         $rh = $this->creerUserAvecRole('responsable_rh');
         $chantier = Chantier::factory()->enCours()->create();
         $poste = Poste::factory()->create();
-        TauxSalaire::factory()->create(['chantier_id' => $chantier->id, 'poste_id' => $poste->id, 'taux_journalier' => 6000, 'taux_heure_sup' => 1000]);
+        TauxSalaire::factory()->create([
+            'chantier_id' => $chantier->id,
+            'poste_id' => $poste->id,
+            'taux_journalier' => 6000,
+            'taux_heure_sup' => 1000
+        ]);
         $ouvrier = Ouvrier::factory()->create(['chantier_id' => $chantier->id, 'poste_id' => $poste->id]);
 
         $semaine = \App\Helpers\SemaineHelper::numeroCycle(Carbon::today());
@@ -59,7 +64,8 @@ class SalairesWorkflowTest extends TestCase
 
         RecapHebdomadaire::where('ouvrier_id', $ouvrier->id)->update(['statutRecap' => 'validee_cp']);
 
-        $response = $this->connecterEnTantQue($rh)->getJson("/api/rh/salaires/{$chantier->id}/apercu?semaine={$semaine}&annee={$annee}");
+        $response = $this->connecterEnTantQue($rh)
+            ->getJson("/api/rh/salaires/{$chantier->id}/apercu?semaine={$semaine}&annee={$annee}");
 
         $response->assertOk();
         $this->assertEquals(7000, $response->json('total_general')); // 6000 base + 1000 h.sup

@@ -25,11 +25,10 @@ class ValidationController extends Controller
 
         $infos = $this->recapService->getInfosSemaine($semaine, $annee);
         $statut = $this->recapService->getStatutSemaine($chantier->id, $semaine, $annee);
-        $donnees = $this->recapService->getLignesRecap($chantier->id, $semaine, $annee, $page);
-        $totaux = $this->recapService->getTotauxSemaine($chantier->id, $semaine, $annee);
+        $recap = $this->recapService->getRecapComplet($chantier->id, $semaine, $annee, $page);
         $semaines = $this->recapService->getSemainesDisponibles(5);
 
-        $lignesSansSalaire = collect($donnees['lignes'])->map(function ($ligne) {
+        $lignesSansSalaire = collect($recap['lignes'])->map(function ($ligne) {
             unset($ligne['salaire_base'], $ligne['salaire_h_sup'], $ligne['salaire_total']);
             return $ligne;
         });
@@ -42,11 +41,11 @@ class ValidationController extends Controller
             'fin' => $infos['fin']->toDateString(),
             'jours' => collect($infos['jours'])->map(fn($j) => $j->toDateString()),
             'lignes' => $lignesSansSalaire,
-            'pagination' => $donnees['pagination'],
+            'pagination' => $recap['pagination'],
             'statut' => $statut['statut'],
             'motif_rejet' => $statut['motif_rejet'],
             'totaux' => [
-                'totaux_par_jour' => $totaux['totaux_par_jour'],
+                'totaux_par_jour' => $recap['totaux']['totaux_par_jour'],
             ],
             'peutValider' => $statut['statut'] === 'soumise',
             'semaines' => $semaines,
