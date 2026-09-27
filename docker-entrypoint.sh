@@ -6,9 +6,18 @@ PORT="${PORT:-80}"
 sed -i "s/^Listen .*/Listen ${PORT}/" /etc/apache2/ports.conf
 sed -i "s/<VirtualHost \*:80>/<VirtualHost *:${PORT}>/" /etc/apache2/sites-available/000-default.conf
 
-# Génère la clé d'application si elle n'existe pas encore (sécurité, normalement définie via Railway)
+# Il n'y a pas de fichier .env dans ce conteneur (tout passe par les variables
+# Railway), donc "php artisan key:generate" ne peut PAS être exécuté ici : il
+# a besoin d'écrire dans un .env qui n'existe pas. La clé doit être générée en
+# local une fois ("php artisan key:generate --show") puis collée dans les
+# variables Railway sous le nom APP_KEY.
 if [ -z "$APP_KEY" ]; then
-    php artisan key:generate --force
+    echo "=================================================================="
+    echo "ERREUR : la variable d'environnement APP_KEY n'est pas définie."
+    echo "Génère-la en local avec : php artisan key:generate --show"
+    echo "Puis ajoute-la dans Railway (Variables) sous le nom APP_KEY."
+    echo "=================================================================="
+    exit 1
 fi
 
 # Vide les caches de config potentiellement obsolètes (venant de l'image buildée précédemment)
