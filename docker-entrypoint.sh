@@ -28,4 +28,13 @@ php artisan migrate --force
 php artisan config:cache
 php artisan route:cache
 
+# Sécurité : s'assurer qu'un seul MPM (prefork) est actif au démarrage
+rm -f /etc/apache2/mods-enabled/mpm_event.load \
+      /etc/apache2/mods-enabled/mpm_event.conf \
+      /etc/apache2/mods-enabled/mpm_worker.load \
+      /etc/apache2/mods-enabled/mpm_worker.conf
+
+echo "=== MPM actifs ==="
+ls /etc/apache2/mods-enabled | grep -i mpm || echo "aucun fichier mpm trouvé"
+
 exec apache2-foreground
