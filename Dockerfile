@@ -2,18 +2,30 @@ FROM php:8.2-apache
 
 # Dépendances système + extensions PHP nécessaires (Laravel + dompdf + MySQL)
 RUN apt-get update && apt-get install -y \
-        git \
-        unzip \
-        libzip-dev \
-        libpng-dev \
-        libonig-dev \
-        libxml2-dev \
-        libjpeg62-turbo-dev \
-        libfreetype6-dev \
+    git \
+    unzip \
+    libzip-dev \
+    libpng-dev \
+    libonig-dev \
+    libxml2-dev \
+    libjpeg62-turbo-dev \
+    libfreetype6-dev \
     && docker-php-ext-configure gd --with-freetype --with-jpeg \
     && docker-php-ext-install pdo pdo_mysql mbstring exif pcntl bcmath gd zip \
     && a2enmod rewrite \
     && rm -rf /var/lib/apt/lists/*
+
+# Force un seul MPM actif (prefork, requis par mod_php) en manipulant
+# directement les symlinks, pour éviter tout comportement incohérent
+# d'a2enmod/a2dismod selon la version du paquet apache2.
+RUN rm -f /etc/apache2/mods-enabled/mpm_event.load \
+    /etc/apache2/mods-enabled/mpm_event.conf \
+    /etc/apache2/mods-enabled/mpm_worker.load \
+    /etc/apache2/mods-enabled/mpm_worker.conf \
+    /etc/apache2/mods-enabled/mpm_prefork.load \
+    /etc/apache2/mods-enabled/mpm_prefork.conf \
+    && ln -s /etc/apache2/mods-available/mpm_prefork.load /etc/apache2/mods-enabled/mpm_prefork.load \
+    && ln -s /etc/apache2/mods-available/mpm_prefork.conf /etc/apache2/mods-enabled/mpm_prefork.conf
 
 # Composer
 COPY --from=composer:2 /usr/bin/composer /usr/bin/composer
