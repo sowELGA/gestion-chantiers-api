@@ -40,7 +40,11 @@ class UserService
 
             $this->roleAssignmentService->synchroniser($user, $rolesDemandes);
 
-            Mail::to($user->email)->send(new CompteCreeMail($user, $motDePasseTemporaire));
+            try {
+                Mail::to($user->email)->send(new CompteCreeMail($user, $motDePasseTemporaire));
+            } catch (\Throwable $e) {
+                report($e);
+            }
 
             return [
                 'user'                  => $user->fresh('roles'),
@@ -90,7 +94,11 @@ class UserService
             'premiere_connexion' => true,
         ]);
 
-        Mail::to($user->email)->send(new MdpReinitialiseMail($user, $nouveauMotDePasse));
+        try {
+            Mail::to($user->email)->send(new MdpReinitialiseMail($user, $nouveauMotDePasse));
+        } catch (\Throwable $e) {
+            report($e);
+        }
 
         return $nouveauMotDePasse;
     }

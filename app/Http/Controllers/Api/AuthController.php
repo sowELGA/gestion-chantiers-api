@@ -105,7 +105,11 @@ class AuthController extends Controller
         $admins = User::avecRole(\App\Models\Role::ADMIN)->where('actif', true)->get();
 
         foreach ($admins as $admin) {
-            Mail::to($admin->email)->send(new DemandeResetNotifMail($userDemandeur, $demande));
+            try {
+                Mail::to($admin->email)->send(new DemandeResetNotifMail($userDemandeur, $demande));
+            } catch (\Throwable $e) {
+                report($e);
+            }
         }
 
         return response()->json([
