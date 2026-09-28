@@ -5,6 +5,7 @@ namespace App\Services;
 use App\Mail\CompteCreeMail;
 use App\Mail\MdpReinitialiseMail;
 use App\Models\DemandeResetMdp;
+use App\Models\Role;
 use App\Models\User;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
@@ -130,5 +131,48 @@ class UserService
             'user' => $user->fresh('roles'),
             'mot_de_passe_temporaire' => $nouveauMotDePasse,
         ];
+    }
+
+    /**
+     * Supprime définitivement un utilisateur, sous conditions :
+     *  - jamais un admin (le super admin a aussi le rôle admin) ;
+     *  - le compte doit d'abord être désactivé ;
+     *  - chef de projet / pointeur : aucune affectation à un chantier ;
+     *  - aucune donnée liée qui serait perdue ou bloquerait la suppression.
+     */
+    public function supprimer(User $user): void
+    {
+        if ($user->hasRole(Role::ADMIN)) {
+            throw new \Exception("Impossible de supprimer un administrateur ou le super administrateur.");
+        }
+
+        if ($user->actif) {
+            throw new \Exception("Désactivez d'abord ce compte avant de le supprimer.");
+        }
+
+        $nbChantiersGeres = $user->chantiersGeres()->count();
+        if ($nbChantiersGeres > 0) {
+            throw new \Exception("Impossible de supprimer ce chef de projet : il est affecté à {$nbChantiersGeres} chantier(s). Réaffectez d'abord ces chantiers.");
+        }
+
+        $nbChantiersPointes = $user->chantiersPointes()->count();
+        if ($nbChantiersPointes > 0) {
+            throw new \Exception("Impossible de supprimer ce pointeur : il est affecté à {$nbChantiersPointes} chantier(s). Réaffectez d'abord ces chantiers.");
+        }
+
+        $aDesDonneesLiees =
+            DB::table('approvisionnements')->where('demandeur_id', $user->id)->exists()
+            || DB::table('bon_receptions')->where('receptionnee_par_id', $user->id)->exists()
+            || DB::table('rapports_chantiers')->where('auteur_id', $user->id)->exists();
+
+        if ($aDesDonneesLiees) {
+            throw new \Exception("Impossible de supprimer ce compte : il est lié à des demandes d'approvisionnement, des réceptions ou des rapports. Gardez-le désactivé pour conserver l'historique.");
+        }
+
+        DB::transaction(function () use ($user) {
+            $user->tokens()->delete();
+            $user->roles()->detach();
+            $user->delete();
+        });
     }
 }

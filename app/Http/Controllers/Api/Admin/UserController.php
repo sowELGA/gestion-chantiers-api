@@ -70,4 +70,15 @@ class UserController extends Controller
             'message' => 'Mot de passe réinitialisé avec succès. Le nouveau mot de passe a été envoyé par email à l\'utilisateur.',
         ]);
     }
+
+    public function destroy(User $user)
+    {
+        try {
+            $this->userService->supprimer($user);
+
+            return response()->json(['message' => 'Utilisateur supprimé avec succès.']);
+        } catch (\Exception $e) {
+            return response()->json(['message' => $e->getMessage()], 422);
+        }
+    }
 }

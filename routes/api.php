@@ -46,6 +46,7 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::get('/utilisateurs/{user}', [UserController::class, 'show']);
         Route::put('/utilisateurs/{user}', [UserController::class, 'update']);
         Route::patch('/utilisateurs/{user}/toggle', [UserController::class, 'toggleActif']);
+        Route::delete('/utilisateurs/{user}', [UserController::class, 'destroy']);
         Route::patch('/utilisateurs/{user}/reinitialiser', [UserController::class, 'reinitialiserMotDePasse']);
 
         Route::get('/demandes-reset', [DemandeResetController::class, 'index']);
