@@ -22,6 +22,10 @@ class OuvrierController extends Controller
             $query->where('chantier_id', $request->input('chantier_id'));
         }
 
+        if ($request->filled('poste_id')) {
+            $query->where('poste_id', $request->input('poste_id'));
+        }
+
         if ($request->input('statut', 'tous') !== 'tous') {
             $query->where('statutOuvrier', $request->input('statut'));
         }
@@ -45,10 +49,16 @@ class OuvrierController extends Controller
         ]);
     }
 
+    public function postesDisponibles(Chantier $chantier)
+    {
+        return response()->json(
+            Poste::disponiblesPourChantier($chantier->id)->orderBy('libelle')->get()
+        );
+    }
+
     public function formOptions()
     {
         return response()->json([
-            'postes'    => Poste::orderBy('libelle')->get(),
             'chantiers' => Chantier::whereIn('statut', ['en_attente', 'en_cours'])->orderBy('nomChantier')->get(['id', 'nomChantier']),
         ]);
     }

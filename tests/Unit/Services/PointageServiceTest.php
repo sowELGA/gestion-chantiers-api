@@ -29,7 +29,11 @@ class PointageServiceTest extends TestCase
     {
         $chantier = Chantier::factory()->enCours()->create();
         $poste = Poste::factory()->create();
-        TauxSalaire::factory()->create(['poste_id' => $poste->id, 'chantier_id' => $chantier->id, 'taux_journalier' => 7500]);
+        TauxSalaire::factory()->create([
+            'poste_id' => $poste->id,
+            'chantier_id' => $chantier->id,
+            'taux_journalier' => 7500
+        ]);
         $ouvrier = Ouvrier::factory()->create(['chantier_id' => $chantier->id, 'poste_id' => $poste->id]);
 
         $this->service->enregistrerFiche([

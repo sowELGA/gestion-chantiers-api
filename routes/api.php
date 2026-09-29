@@ -171,6 +171,7 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::middleware('role:responsable_rh')->prefix('rh')->group(function () {
         Route::get('/ouvriers', [OuvrierController::class, 'index']);
         Route::get('/ouvriers/form-options', [OuvrierController::class, 'formOptions']);
+        Route::get('/ouvriers/postes-disponibles/{chantier}', [OuvrierController::class, 'postesDisponibles']);
         Route::post('/ouvriers', [OuvrierController::class, 'store']);
         Route::put('/ouvriers/{ouvrier}', [OuvrierController::class, 'update']);
         Route::patch('/ouvriers/{ouvrier}/toggle', [OuvrierController::class, 'toggleStatut']);

@@ -12,6 +12,11 @@ class Poste extends Model
     protected $table = 'postes';
     protected $fillable = ['libelle'];
 
+    public function scopeDisponiblesPourChantier($query, int $chantierId)
+    {
+        return $query->whereHas('tauxSalaires', fn($q) => $q->where('chantier_id', $chantierId));
+    }
+
     public function ouvriers()
     {
         return $this->hasMany(Ouvrier::class, 'poste_id');
