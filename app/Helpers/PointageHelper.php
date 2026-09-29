@@ -119,4 +119,46 @@ class PointageHelper
             'salaire_total' => $salaire['salaire_total'],
         ];
     }
+
+    public static function familleMetier(?string $libellePoste): string
+    {
+        $poste = strtolower($libellePoste ?? '');
+        $famille = preg_replace('/^(chef|aide|sous[\s-]chef|premier)\s+/i', '', $poste);
+        return ucwords(trim($famille)) ?: 'Autre';
+    }
+
+    public static function ordreMetier(?string $libellePoste): int
+    {
+        $poste = strtolower($libellePoste ?? '');
+        if (str_starts_with($poste, 'chef')) return 0;
+        if (str_starts_with($poste, 'aide')) return 2;
+        return 1;
+    }
+
+    /**
+     * Regroupe une liste de lignes (tableaux contenant une clé 'poste') par
+     * corps de métier, chaque groupe étant trié pour faire apparaître le
+     * "chef" en premier et l'"aide" en dernier.
+     */
+    public static function grouperParMetier(\Illuminate\Support\Collection $personnel): \Illuminate\Support\Collection
+    {
+        $avecFamille = $personnel->map(function ($ligne) {
+            $ligne['_famille'] = self::familleMetier($ligne['poste']);
+            $ligne['_ordre'] = self::ordreMetier($ligne['poste']);
+            return $ligne;
+        });
+
+        return $avecFamille
+            ->groupBy('_famille')
+            ->sortKeys()
+            ->map(function ($lignes, $famille) {
+                $triees = $lignes->sortBy('_ordre')->values()->map(function ($ligne) {
+                    unset($ligne['_famille'], $ligne['_ordre']);
+                    return $ligne;
+                });
+
+                return ['famille' => $famille, 'personnel' => $triees->values()];
+            })
+            ->values();
+    }
 }

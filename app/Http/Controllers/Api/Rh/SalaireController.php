@@ -98,8 +98,8 @@ class SalaireController extends Controller
                     'salaire_base' => $salaire['salaire_base'],
                     'salaire_heures_sup' => $salaire['salaire_heures_sup'],
                     'salaire_total' => $salaire['salaire_total'],
-                    '_famille' => $this->familleMetier($poste?->libelle),
-                    '_ordre' => $this->ordreMetier($poste?->libelle),
+                    '_famille' => PointageHelper::familleMetier($poste?->libelle),
+                    '_ordre' => PointageHelper::ordreMetier($poste?->libelle),
                 ];
             });
 
@@ -134,20 +134,5 @@ class SalaireController extends Controller
         }
 
         return $this->pdfService->genererFichePaie($chantier->id, $semaine, $annee);
-    }
-
-    private function familleMetier(?string $libellePoste): string
-    {
-        $poste = strtolower($libellePoste ?? '');
-        $famille = preg_replace('/^(chef|aide|sous[\s-]chef|premier)\s+/i', '', $poste);
-        return ucwords(trim($famille)) ?: 'Autre';
-    }
-
-    private function ordreMetier(?string $libellePoste): int
-    {
-        $poste = strtolower($libellePoste ?? '');
-        if (str_starts_with($poste, 'chef')) return 0;
-        if (str_starts_with($poste, 'aide')) return 2;
-        return 1;
     }
 }

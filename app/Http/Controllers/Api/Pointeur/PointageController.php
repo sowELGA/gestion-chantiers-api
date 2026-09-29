@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Api\Pointeur;
 
+use App\Helpers\PointageHelper;
 use App\Helpers\SemaineHelper;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Pointage\ModifierJourRequest;
@@ -48,7 +49,7 @@ class PointageController extends Controller
         return response()->json([
             'chantier' => ['id' => $chantier->id, 'nomChantier' => $chantier->nomChantier],
             'date' => $donnees['date']->toDateString(),
-            'personnel' => $personnel,
+            'groupes' => PointageHelper::grouperParMetier($personnel),
             'ficheExiste' => $donnees['ficheExiste'],
             'modifiable' => $modifiable,
         ]);
@@ -152,7 +153,7 @@ class PointageController extends Controller
         return response()->json([
             'chantier' => ['id' => $chantier->id, 'nomChantier' => $chantier->nomChantier],
             'date' => $dateCarbon->toDateString(),
-            'personnel' => $personnel,
+            'groupes' => PointageHelper::grouperParMetier($personnel),
             'motif_rejet' => $statut['motif_rejet'],
             'semaine' => $semaine,
             'annee' => $annee,
