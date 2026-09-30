@@ -130,6 +130,14 @@ class ChantierService
             throw new \Exception('Impossible de supprimer un chantier ayant des dépenses enregistrées.');
         }
 
+        if ($chantier->approvisionnements()->exists()) {
+            throw new \Exception("Impossible de supprimer ce chantier : il a des demandes d'approvisionnement enregistrées.");
+        }
+
+        if (DB::table('bon_receptions')->where('chantier_id', $chantier->id)->exists()) {
+            throw new \Exception('Impossible de supprimer ce chantier : des bons de réception y sont rattachés.');
+        }
+
         $phases = $chantier->phases()->with('taches')->get();
         $phaseAvancee = $phases->contains(fn($p) => $p->avancement > 0);
 
