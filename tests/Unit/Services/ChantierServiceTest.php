@@ -29,15 +29,6 @@ class ChantierServiceTest extends TestCase
         $this->assertDatabaseMissing('chantiers', ['id' => $chantier->id]);
     }
 
-    public function test_un_chantier_avec_phase_sans_avancement_exige_une_confirmation(): void
-    {
-        $chantier = Chantier::factory()->create();
-        Phase::factory()->for($chantier)->create(); // aucune tâche → avancement = 0
-
-        $this->expectExceptionMessageMatches('/CONFIRMATION_REQUISE/');
-        $this->service->supprimer($chantier, confirme: false);
-    }
-
     public function test_un_chantier_avec_phase_sans_avancement_se_supprime_apres_confirmation(): void
     {
         $chantier = Chantier::factory()->create();
@@ -80,5 +71,14 @@ class ChantierServiceTest extends TestCase
 
         $this->assertDatabaseHas('ouvriers', ['id' => $ouvrier->id]); // toujours là
         $this->assertNull($ouvrier->fresh()->chantier_id); // mais libéré
+    }
+
+     public function test_un_chantier_avec_phase_sans_avancement_exige_une_confirmation(): void
+    {
+        $chantier = Chantier::factory()->create();
+        Phase::factory()->for($chantier)->create(); // aucune tâche → avancement = 0
+
+        $this->expectExceptionMessageMatches('/CONFIRMATION_REQUISE/');
+        $this->service->supprimer($chantier, confirme: false);
     }
 }

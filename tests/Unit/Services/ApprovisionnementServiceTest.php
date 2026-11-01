@@ -26,14 +26,30 @@ class ApprovisionnementServiceTest extends TestCase
         $this->service->creerPlusieurs([
             'chantier_id' => $chantier->id,
             'demandes' => [
-                ['designation' => 'Ciment', 'quantite_demandee' => 50, 'unite' => 'sac', 'date_livraison_souhaitee' => now()->addDays(10)],
-                ['designation' => 'Sable', 'quantite_demandee' => 5, 'unite' => 'm3', 'date_livraison_souhaitee' => now()->addDay()],
+                [
+                    'designation' => 'Ciment',
+                    'quantite_demandee' => 50,
+                    'unite' => 'sac',
+                    'date_livraison_souhaitee' => now()->addDays(10)
+                ],
+                [
+                    'designation' => 'Sable',
+                    'quantite_demandee' => 5,
+                    'unite' => 'm3',
+                    'date_livraison_souhaitee' => now()->addDay()
+                ],
             ],
         ], $demandeur->id);
 
         $this->assertDatabaseCount('approvisionnements', 2);
-        $this->assertDatabaseHas('approvisionnements', ['designation' => 'Ciment', 'priorite' => 'normal']);
-        $this->assertDatabaseHas('approvisionnements', ['designation' => 'Sable', 'priorite' => 'urgent']); // livraison dans 1 jour → urgent
+        $this->assertDatabaseHas('approvisionnements', [
+            'designation' => 'Ciment',
+            'priorite' => 'normal'
+        ]);
+        $this->assertDatabaseHas('approvisionnements', [
+            'designation' => 'Sable',
+            'priorite' => 'urgent'
+        ]); // livraison dans 1 jour → urgent
     }
 
     public function test_valider_une_demande_en_attente(): void
