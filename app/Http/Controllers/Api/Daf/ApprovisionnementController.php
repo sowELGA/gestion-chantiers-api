@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Api\Daf;
 
+use App\Helpers\SqlHelper;
 use App\Http\Controllers\Controller;
 use App\Http\Resources\ApprovisionnementResource;
 use App\Models\Approvisionnement;
@@ -16,7 +17,7 @@ class ApprovisionnementController extends Controller
     {
         $demandesEnAttente = Approvisionnement::with(['chantier', 'demandeur'])
             ->where('statutAppro', 'en_attente')
-            ->orderByRaw("FIELD(priorite, 'urgent', 'normal')")
+            ->orderByRaw(SqlHelper::ordrePersonnalise('priorite', ['urgent', 'normal']))
             ->orderBy('created_at')
             ->get();
 

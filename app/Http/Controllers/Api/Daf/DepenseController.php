@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Api\Daf;
 
+use App\Helpers\SqlHelper;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Chantier\DepenseRequest;
 use App\Models\Chantier;
@@ -24,7 +25,7 @@ class DepenseController extends Controller
         }
 
         $chantiers = $query
-            ->orderByRaw("FIELD(statut, 'en_cours', 'en_attente', 'suspendu', 'livre')")
+            ->orderByRaw(SqlHelper::ordrePersonnalise('statut', ['en_cours', 'en_attente', 'suspendu', 'livre']))
             ->orderBy('nomChantier')
             ->get(['id', 'nomChantier', 'localisation', 'statut', 'budget_prevu']);
 

@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Api\Pointeur;
 
 use App\Helpers\SemaineHelper;
+use App\Helpers\SqlHelper;
 use App\Http\Controllers\Controller;
 use App\Models\Approvisionnement;
 use App\Models\Chantier;
@@ -53,7 +54,7 @@ class DashboardController extends Controller
         $livraisons = Approvisionnement::with('bonReceptions')
             ->where('chantier_id', $chantier->id)
             ->whereIn('statutAppro', ['en_cours_livraison', 'partiellement_recue'])
-            ->orderByRaw("CASE priorite WHEN 'urgent' THEN 1 ELSE 2 END")
+            ->orderByRaw(SqlHelper::ordrePersonnalise('priorite', ['urgent', 'normal']))
             ->take(5)->get()
             ->map(fn($l) => [
                 'id' => $l->id,

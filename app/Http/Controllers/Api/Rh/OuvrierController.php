@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Api\Rh;
 
+use App\Helpers\SqlHelper;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Ouvrier\OuvrierRequest;
 use App\Models\Chantier;
@@ -32,15 +33,17 @@ class OuvrierController extends Controller
 
         if ($request->filled('recherche')) {
             $r = $request->input('recherche');
-            $query->where(fn($q) => $q->where('nomOuvrier', 'like', "%{$r}%")->orWhere('prenomOuvrier', 'like', "%{$r}%"));
+            $like = SqlHelper::operateurContient($query);
+            $query->where(fn($q) => $q->where('nomOuvrier', $like, "%{$r}%")->orWhere('prenomOuvrier', $like, "%{$r}%"));
         }
 
         $personnel = $query->paginate(10)->withQueryString();
 
+        $statutOuvrier = SqlHelper::wrap('statutOuvrier');
         $agregats = Ouvrier::selectRaw("
             COUNT(*) as total,
-            SUM(CASE WHEN statutOuvrier = 'actif' THEN 1 ELSE 0 END) as actifs,
-            SUM(CASE WHEN statutOuvrier = 'inactif' THEN 1 ELSE 0 END) as inactifs
+            SUM(CASE WHEN {$statutOuvrier} = 'actif' THEN 1 ELSE 0 END) as actifs,
+            SUM(CASE WHEN {$statutOuvrier} = 'inactif' THEN 1 ELSE 0 END) as inactifs
         ")->first();
 
         return response()->json([

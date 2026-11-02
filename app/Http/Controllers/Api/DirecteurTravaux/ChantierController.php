@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Api\DirecteurTravaux;
 
+use App\Helpers\SqlHelper;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Chantier\AffectationRequest;
 use App\Http\Requests\Chantier\ChantierRequest;
@@ -28,11 +29,11 @@ class ChantierController extends Controller
         }
 
         if ($request->filled('nomChantier')) {
-            $query->where('nomChantier', 'like', '%' . $request->input('nomChantier') . '%');
+            $query->where('nomChantier', SqlHelper::operateurContient($query), '%' . $request->input('nomChantier') . '%');
         }
 
         $chantiers = $query
-            ->orderByRaw("FIELD(statut, 'en_cours', 'en_attente', 'suspendu', 'livre')")
+            ->orderByRaw(SqlHelper::ordrePersonnalise('statut', ['en_cours', 'en_attente', 'suspendu', 'livre']))
             ->get();
 
         return response()->json([
@@ -149,7 +150,7 @@ class ChantierController extends Controller
             $query->where('statut', $statutFiltre);
         }
 
-        $chantiers = $query->orderByRaw("FIELD(statut, 'en_cours', 'en_attente', 'suspendu', 'livre')")->get();
+        $chantiers = $query->orderByRaw(SqlHelper::ordrePersonnalise('statut', ['en_cours', 'en_attente', 'suspendu', 'livre']))->get();
 
         return response()->json([
             'chantiers' => ChantierResource::collection($chantiers),

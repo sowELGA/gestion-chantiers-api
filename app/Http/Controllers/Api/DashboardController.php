@@ -107,12 +107,21 @@ class DashboardController extends Controller
     private function statsResponsableRh(): array
     {
         $ouvriersParChantier = Chantier::whereIn('statut', ['en_cours', 'en_attente'])
-            ->withCount(['ouvriers' => fn($q) => $q->where('statutOuvrier', 'actif')])
-            ->having('ouvriers_count', '>', 0)
-            ->orderByDesc('ouvriers_count')
-            ->get(['id', 'nomChantier'])
-            ->map(fn($c) => ['chantier' => ['id' => $c->id, 'nomChantier' => $c->nomChantier], 'nb_ouvriers_actifs' => $c->ouvriers_count]);
-
+        ->withCount([
+            'ouvriers as ouvriers_count' => fn($q) =>
+                $q->where('statutOuvrier', 'actif')
+        ])
+        ->orderByDesc('ouvriers_count')
+        ->get(['id', 'nomChantier'])
+        ->filter(fn($c) => $c->ouvriers_count > 0)
+        ->map(fn($c) => [
+            'chantier' => [
+                'id' => $c->id,
+                'nomChantier' => $c->nomChantier
+            ],
+            'nb_ouvriers_actifs' => $c->ouvriers_count
+        ])
+        ->values();
         return [
             'ouvriers_actifs' => Ouvrier::where('statutOuvrier', 'actif')->count(),
             'ouvriers_inactifs' => Ouvrier::where('statutOuvrier', 'inactif')->count(),

@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Api\Pointeur;
 
 use App\Helpers\ApprovisionnementHelper;
+use App\Helpers\SqlHelper;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Approvisionnement\ReceptionRequest;
 use App\Http\Resources\ApprovisionnementResource;
@@ -24,7 +25,7 @@ class ReceptionController extends Controller
         $livraisons = Approvisionnement::with(['demandeur', 'bonReceptions'])
             ->where('chantier_id', $chantier->id)
             ->whereIn('statutAppro', ['en_cours_livraison', 'partiellement_recue'])
-            ->orderByRaw("FIELD(priorite, 'urgent', 'normal')")
+            ->orderByRaw(SqlHelper::ordrePersonnalise('priorite', ['urgent', 'normal']))
             ->get();
 
         return response()->json([

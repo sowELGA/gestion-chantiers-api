@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Api\ChefProjet;
 
+use App\Helpers\SqlHelper;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Approvisionnement\ApprovisionnementRequest;
 use App\Http\Resources\ApprovisionnementResource;
@@ -40,16 +41,17 @@ class ApprovisionnementController extends Controller
             ->whereHas('chantier', fn($q) => $q->where('chef_projet_id', auth()->id()))
             ->whereBetween('created_at', [$dateDebut . ' 00:00:00', $dateFin . ' 23:59:59'])
             ->when($statut !== 'tous', fn($q) => $q->where('statutAppro', $statut))
-            ->orderByRaw("FIELD(priorite, 'urgent', 'normal')")
+            ->orderByRaw(SqlHelper::ordrePersonnalise('priorite', ['urgent', 'normal']))
             ->orderByDesc('created_at')
             ->get();
 
+        $statutAppro = SqlHelper::wrap('statutAppro');
         $brut = Approvisionnement::whereHas('chantier', fn($q) => $q->where('chef_projet_id', auth()->id()))
             ->selectRaw("
-                SUM(CASE WHEN statutAppro = 'en_attente' THEN 1 ELSE 0 END) as en_attente,
-                SUM(CASE WHEN statutAppro IN ('validee','en_cours_livraison','partiellement_recue') THEN 1 ELSE 0 END) as en_cours_livraison,
-                SUM(CASE WHEN statutAppro = 'cloturee' THEN 1 ELSE 0 END) as cloturee,
-                SUM(CASE WHEN statutAppro = 'rejetee' THEN 1 ELSE 0 END) as rejetee
+                SUM(CASE WHEN {$statutAppro} = 'en_attente' THEN 1 ELSE 0 END) as en_attente,
+                SUM(CASE WHEN {$statutAppro} IN ('validee','en_cours_livraison','partiellement_recue') THEN 1 ELSE 0 END) as en_cours_livraison,
+                SUM(CASE WHEN {$statutAppro} = 'cloturee' THEN 1 ELSE 0 END) as cloturee,
+                SUM(CASE WHEN {$statutAppro} = 'rejetee' THEN 1 ELSE 0 END) as rejetee
             ")->first();
 
         return response()->json([

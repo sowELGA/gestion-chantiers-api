@@ -1,6 +1,6 @@
 FROM php:8.2-apache
 
-# Dépendances système + extensions PHP nécessaires (Laravel + dompdf + MySQL)
+# Dépendances système + extensions PHP nécessaires (Laravel + dompdf + PostgreSQL)
 RUN apt-get update && apt-get install -y \
     git \
     unzip \
@@ -10,8 +10,9 @@ RUN apt-get update && apt-get install -y \
     libxml2-dev \
     libjpeg62-turbo-dev \
     libfreetype6-dev \
+    libpq-dev \
     && docker-php-ext-configure gd --with-freetype --with-jpeg \
-    && docker-php-ext-install pdo pdo_mysql mbstring exif pcntl bcmath gd zip \
+    && docker-php-ext-install pdo pdo_pgsql mbstring exif pcntl bcmath gd zip \
     && a2enmod rewrite \
     && rm -rf /var/lib/apt/lists/*
 

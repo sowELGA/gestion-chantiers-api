@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Api\DirecteurTravaux;
 
+use App\Helpers\SqlHelper;
 use App\Http\Controllers\Controller;
 use App\Http\Resources\RapportResource;
 use App\Models\Chantier;
@@ -44,7 +45,8 @@ class RapportController extends Controller
 
         if ($request->filled('recherche')) {
             $r = $request->input('recherche');
-            $query->where(fn($q) => $q->where('titre', 'like', "%{$r}%")->orWhere('contenu', 'like', "%{$r}%"));
+            $like = SqlHelper::operateurContient($query);
+            $query->where(fn($q) => $q->where('titre', $like, "%{$r}%")->orWhere('contenu', $like, "%{$r}%"));
         }
 
         $rapports = $query->paginate(8)->withQueryString();
